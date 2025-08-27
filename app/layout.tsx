@@ -3,7 +3,9 @@ import { Figtree } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import SupabaseProvider from "@/providers/SupaBaseProvider";
-import UserProvider from "@/hooks/UserProvider";
+import UserProvider from "@/providers/UserProvider";
+import ModalProvider from "@/providers/ModalProvider";
+import ToasterProvider from "@/providers/ToasterProvider";
 
 const font = Figtree({subsets:['latin']})
 
@@ -22,12 +24,15 @@ export default function RootLayout({
       <body
         className={font.className}
       >
+        <ToasterProvider/>
         <SupabaseProvider>
-          <UserProvider>
+        <UserProvider>
+        <ModalProvider>
         <Sidebar>
-           {children}
+        {children}
 
         </Sidebar>
+        </ModalProvider>
         </UserProvider>
         </SupabaseProvider>
       </body>
