@@ -1,6 +1,7 @@
 "use client";
 
 import AuthModal from "@/components/AuthModal";
+import UploadModal from "@/components/UploadModal";
 import { ReactNode } from "react";
 
 interface ModalProviderProps {
@@ -12,6 +13,7 @@ const ModalProvider = ({ children }: ModalProviderProps) => {
     <>
       {children}
       <AuthModal />
+      <UploadModal/>
     </>
   );
 };
