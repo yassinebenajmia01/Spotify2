@@ -33,7 +33,7 @@ export interface Price{
     product_id?:string;
     active?:boolean;
     description?:string;
-    unit_amount?:string;
+    unit_amount?:number;
     currency?:string;
     type?:Stripe.Price.Type;
     interval?:Stripe.Price.Recurring.Interval;
@@ -52,8 +52,8 @@ export interface Subscription{
     quantity?:number;
     cancel_at_period_end?:boolean;
     created:string;
-    current_period_start:string;
-    current_period_end:string;
+    current_period_start:string |null;
+    current_period_end:string |null;
     ended_at?:string;
     cancel_at?:string;
     canceled_at?:string;
