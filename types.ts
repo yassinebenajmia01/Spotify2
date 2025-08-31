@@ -1,5 +1,10 @@
 import Stripe from "stripe"
 
+export interface ProductWithPrice extends Product{
+    prices?:Price[];
+
+}
+
 export interface Song{
     id:string
     use_id:string

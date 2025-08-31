@@ -10,6 +10,7 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onChange, title, description, children }) => {
+  
   return (
     <Dialog.Root open={isOpen} onOpenChange={onChange}>
       <Dialog.Portal>

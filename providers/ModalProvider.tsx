@@ -1,19 +1,21 @@
 "use client";
 
 import AuthModal from "@/components/AuthModal";
+import SubscribeModal from "@/components/SubscribeModal";
 import UploadModal from "@/components/UploadModal";
-import { ReactNode } from "react";
+import { ProductWithPrice } from "@/types";
 
 interface ModalProviderProps {
-  children?: ReactNode;
+  products:ProductWithPrice[];
 }
 
-const ModalProvider = ({ children }: ModalProviderProps) => {
+const ModalProvider:React.FC<ModalProviderProps> = ({products}) => {
   return (
     <>
-      {children}
+      
       <AuthModal />
       <UploadModal/>
+      <SubscribeModal products={products}/>
     </>
   );
 };
