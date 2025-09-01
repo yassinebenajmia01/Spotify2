@@ -7,15 +7,17 @@ import { ProductWithPrice } from "@/types";
 
 interface ModalProviderProps {
   products:ProductWithPrice[];
+  children?: React.ReactNode;
 }
 
-const ModalProvider:React.FC<ModalProviderProps> = ({products}) => {
+const ModalProvider:React.FC<ModalProviderProps> = ({products,children}) => {
   return (
     <>
       
       <AuthModal />
       <UploadModal/>
       <SubscribeModal products={products}/>
+      {children}
     </>
   );
 };

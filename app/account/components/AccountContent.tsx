@@ -1,65 +1,64 @@
-"use client"
+"use client";
 
 import Button from "@/components/Button";
 import useSubscribeModal from "@/hooks/useSubscribeModal";
 import { useUser } from "@/hooks/useUser";
-import { postData } from "@/libs/helper";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { postData } from "@/libs/helper";
 
-const AccountContent=()=>{
-    const router = useRouter();
-    const subscribeModal=useSubscribeModal();
-    const {isLoading,subscription,user}=useUser();
-    const [Loading,setLoading]=useState(false);
+const AccountContent = () => {
+  const router = useRouter();
+  const subscribeModal = useSubscribeModal();
+  const { isLoading, subscription, user, reloadSubscription } = useUser();
+  const [loading, setLoading] = useState(false);
 
-    useEffect(()=>{
-        if(!isLoading && !user){
-            router.replace('/');
-        }
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!isLoading && !user) router.replace("/");
+  }, [isLoading, user, router]);
 
-    },[isLoading,user,router]);
-    const redirectToCustomerPortal = async()=>{
-        setLoading(true);
-        try{
-            const {url,error}= await postData({
-                url:'/api/create-portal-link'
-            });
-            window.location.assign(url);
-        }catch (error){
-            if(error){
-                toast.error((error as Error).message)
-            }
-        }
-        setLoading(false);
+  const redirectToCustomerPortal = async () => {
+    setLoading(true);
+    try {
+      const { url, error } = await postData({ url: "/api/create-portal-link" });
+      if (error) throw new Error(error as any);
+      window.location.assign(url);
+    } catch (error) {
+      toast.error((error as Error).message);
+    } finally {
+      setLoading(false);
+      // 🔑 Refresh subscription in case plan changed in Stripe portal
+      await reloadSubscription();
     }
-    return(
-        <div className="mb-7 px-6">
-        {!subscription && (
-            <div className="flex flex-col gap-y-4">
-                <p>
-                    No Active Plan.
-                </p>
-                <Button onClick={subscribeModal.onOpen} className="w-[300px]">
-                    Subscribe
-                </Button>
-            </div>
-        )
+  };
 
-        }
-        {subscription &&(
-            <div className="flex flex-col gap-y-4">
-                <p>
-                    You are currently on the <b>{subscription?.prices?.products?.name}</b>plan.
-                </p>
-                <Button className="w-[300px]" disabled={Loading || isLoading} onClick={redirectToCustomerPortal}>
-                    Open Customer Portal
-                </Button>
+  return (
+    <div className="mb-7 px-6">
+      {!subscription ? (
+        <div className="flex flex-col gap-y-4">
+          <p>No Active Plan.</p>
+          <Button onClick={subscribeModal.onOpen} className="w-[300px]">
+            Subscribe
+          </Button>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-y-4">
+          <p>
+            You are currently on the <b>{subscription?.prices?.products?.name}</b> plan.
+          </p>
+          <Button
+            className="w-[300px]"
+            disabled={loading || isLoading}
+            onClick={redirectToCustomerPortal}
+          >
+            Open Customer Portal
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+};
 
-            </div>
-        )}
-        </div> 
-    );
-}
 export default AccountContent;

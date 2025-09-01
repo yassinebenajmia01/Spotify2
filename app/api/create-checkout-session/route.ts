@@ -39,8 +39,9 @@ export async function POST(request: Request) {
       mode: "subscription",
       allow_promotion_codes: true,
       subscription_data: { metadata },
-      success_url: `${getURL()}/account`,
-      cancel_url: `${getURL()}`,
+      success_url: `${getURL()}/account?success=true`,
+      cancel_url: `${getURL()}/account?canceled=true`,
+
     });
 
     return NextResponse.json({ sessionId: session.id });
