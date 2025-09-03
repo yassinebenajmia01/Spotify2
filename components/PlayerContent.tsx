@@ -1,5 +1,3 @@
-"use client";
-
 import { Song } from "@/types";
 import MediaItem from "./MediaItem";
 import LikeButton from "./LikeButton";
@@ -12,7 +10,7 @@ import { useEffect, useState } from "react";
 import useSound from "use-sound";
 
 interface PlayerContentProps {
-  song: Song;       // ✅ should be a single song, not an array
+  song: Song;
   songUrl: string;
 }
 
@@ -25,31 +23,21 @@ const PlayerContent: React.FC<PlayerContentProps> = ({ song, songUrl }) => {
   const VolumeIcon = volume === 0 ? HiSpeakerXMark : HiSpeakerWave;
 
   const onPlayNext = () => {
-    if (player.ids.length === 0) return;
-
-    const currentIndex = player.ids.findIndex((id) => id === player.activeId);
-    const nextSong = player.ids[currentIndex + 1];
-
-    if (!nextSong) {
-      return player.setId(player.ids[0]);
-    }
+    if (!player.ids.length || !player.activeId) return;
+    const idx = player.ids.findIndex((id) => id === player.activeId);
+    const nextSong = player.ids[(idx + 1) % player.ids.length]; // loop around
     player.setId(nextSong);
   };
 
   const onPlayPrevious = () => {
-    if (player.ids.length === 0) return;
-
-    const currentIndex = player.ids.findIndex((id) => id === player.activeId);
-    const previousSong = player.ids[currentIndex - 1];
-
-    if (!previousSong) {
-      return player.setId(player.ids[player.ids.length - 1]);
-    }
-    player.setId(previousSong);
+    if (!player.ids.length || !player.activeId) return;
+    const idx = player.ids.findIndex((id) => id === player.activeId);
+    const prevSong = player.ids[(idx - 1 + player.ids.length) % player.ids.length]; // loop around
+    player.setId(prevSong);
   };
 
   const [play, { pause, sound }] = useSound(songUrl, {
-    volume: volume,
+    volume,
     onplay: () => setIsPlaying(true),
     onend: () => {
       setIsPlaying(false);
@@ -57,14 +45,20 @@ const PlayerContent: React.FC<PlayerContentProps> = ({ song, songUrl }) => {
     },
     onpause: () => setIsPlaying(false),
     format: ["mp3"],
+    html5: true,
   });
 
+  // Update volume dynamically
   useEffect(() => {
-    sound?.play();
+    if (sound) sound.volume(volume);
+  }, [volume, sound]);
+
+  // Cleanup previous sound on song change
+  useEffect(() => {
     return () => {
       sound?.unload();
     };
-  }, [sound]);
+  }, [songUrl]);
 
   const handlePlay = () => {
     if (!isPlaying) {
@@ -74,13 +68,11 @@ const PlayerContent: React.FC<PlayerContentProps> = ({ song, songUrl }) => {
     }
   };
 
-  const toggleMute = () => {
-    setVolume(volume === 0 ? 1 : 0);
-  };
+  const toggleMute = () => setVolume(volume === 0 ? 1 : 0);
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 h-full">
-      {/* Left Section */}
+      {/* Left */}
       <div className="flex w-full justify-start">
         <div className="flex items-start gap-x-4">
           <MediaItem data={song} />
@@ -88,7 +80,7 @@ const PlayerContent: React.FC<PlayerContentProps> = ({ song, songUrl }) => {
         </div>
       </div>
 
-      {/* Mobile Play Button */}
+      {/* Mobile Play */}
       <div className="flex md:hidden col-auto w-full justify-end items-center">
         <div
           onClick={handlePlay}
@@ -118,11 +110,11 @@ const PlayerContent: React.FC<PlayerContentProps> = ({ song, songUrl }) => {
         />
       </div>
 
-      {/* Volume Controls */}
+      {/* Volume */}
       <div className="hidden md:flex w-full justify-end pr-2">
         <div className="flex items-center gap-x-2 w-[120px]">
           <VolumeIcon onClick={toggleMute} size={34} className="cursor-pointer" />
-          <Slider value={volume} onChange={(value) => setVolume(value)} />
+          <Slider value={volume} onChange={(v) => setVolume(v)} />
         </div>
       </div>
     </div>

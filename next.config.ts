@@ -1,11 +1,15 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  images:{
-    domains:[
-      "rgyprufabmyurlbtzrbq.supabase.co"
-    ]
-  }
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'rgyprufabmyurlbtzrbq.supabase.co',
+        port: '',
+        pathname: '/storage/**',
+      },
+    ],
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

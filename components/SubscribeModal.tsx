@@ -35,35 +35,37 @@ const SubscribeModal: React.FC<SubscribeModalProps> = ({ products }) => {
   }, [subscription, subscribeModal.isOpen, subscribeModal]);
 
   const handleCheckout = async (price: Price) => {
-    setPriceIdLoading(price.id);
+  setPriceIdLoading(price.id);
 
-    if (!user) {
-      setPriceIdLoading(undefined);
-      return toast.error("Must be logged in");
-    }
+  if (!user) {
+    setPriceIdLoading(undefined);
+    return toast.error("Must be logged in");
+  }
 
-    if (subscription) {
-      setPriceIdLoading(undefined);
-      return toast("Already Subscribed");
-    }
+  if (subscription) {
+    setPriceIdLoading(undefined);
+    return toast("Already Subscribed");
+  }
 
-    try {
-      const { sessionId } = await postData({
-        url: "/api/create-checkout-session",
-        data: { price },
-      });
+  try {
+    const { sessionId } = await postData({
+      url: "/api/create-checkout-session",
+      data: { price },
+    });
 
-      const stripe = await getStripe();
-      await stripe?.redirectToCheckout({ sessionId });
+    const stripe = await getStripe();
+    await stripe?.redirectToCheckout({ sessionId });
 
-      // After returning from Stripe, reload subscription
-      await reloadSubscription();
-    } catch (error) {
-      toast.error((error as Error).message);
-    } finally {
-      setPriceIdLoading(undefined);
-    }
-  };
+    // After returning from Stripe, reload subscription
+    await reloadSubscription();
+    subscribeModal.onClose(); // Close the modal
+  } catch (error) {
+    toast.error((error as Error).message);
+  } finally {
+    setPriceIdLoading(undefined);
+  }
+};
+
 
   if (!subscribeModal.isOpen) return null;
 
